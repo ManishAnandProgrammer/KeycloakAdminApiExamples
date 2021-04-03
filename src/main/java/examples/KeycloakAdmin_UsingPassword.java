@@ -16,11 +16,19 @@ import java.util.Optional;
 
 public class KeycloakAdmin_UsingPassword {
 
+  private static final String KEYCLOAK_SERVER_URL = "http://localhost:8080/auth";
+  private static final String REALM_NAME = "springboard";
+
+  // Don't get confuse in client id and client's id
+  // client id is like client name and client's id
+  // looks like '849a4d2f-2dd7-4d7b-a590-4f677cf4b674'
+  private static final String CLIENT_ID = "myApp";
+
   private final static Keycloak KEYCLOAK = KeycloakBuilder.builder() //
-    .serverUrl("http://localhost:8080/auth") //
-    .realm("springbootdemo") //
+    .serverUrl(KEYCLOAK_SERVER_URL) //
+    .realm(REALM_NAME) //
     .grantType(OAuth2Constants.PASSWORD) //
-    .clientId("myApp")
+    .clientId(CLIENT_ID)
     .clientSecret("02a8a752-107c-406e-a0f6-169650799c50") //
     .username("neeraj") //
     .password("jangra") //
@@ -39,7 +47,7 @@ public class KeycloakAdmin_UsingPassword {
   // User "neeraj" needs at least "manage-users, view-clients,
   // view-realm, view-users" roles for "realm-management"
   public static void clientRoles() {
-    RealmResource realmResource = KEYCLOAK.realm("springbootdemo");
+    RealmResource realmResource = KEYCLOAK.realm(REALM_NAME);
 
     ClientsResource clientsResource = realmResource.clients();
     ClientResource clientResource = clientsResource.get("849a4d2f-2dd7-4d7b-a590-4f677cf4b674");
@@ -53,7 +61,7 @@ public class KeycloakAdmin_UsingPassword {
   }
 
   public static void printAllClients() {
-    RealmResource realmResource = KEYCLOAK.realm("springbootdemo");
+    RealmResource realmResource = KEYCLOAK.realm(REALM_NAME);
 
     ClientsResource clientsResource = realmResource.clients();
     List<ClientRepresentation> clientRepresentationList = clientsResource.findAll();
@@ -65,7 +73,7 @@ public class KeycloakAdmin_UsingPassword {
   }
 
   public static void findUser() {
-    RealmResource realmResource = KEYCLOAK.realm("springbootdemo");
+    RealmResource realmResource = KEYCLOAK.realm(REALM_NAME);
 
     UsersResource usersResource = realmResource.users();
     List<UserRepresentation> list = usersResource.search("9817330020", true);
@@ -74,7 +82,7 @@ public class KeycloakAdmin_UsingPassword {
   }
 
   public static void findUserAndSetRole() {
-    RealmResource realmResource = KEYCLOAK.realm("springbootdemo");
+    RealmResource realmResource = KEYCLOAK.realm(REALM_NAME);
 
     UsersResource usersResource = realmResource.users();
     List<UserRepresentation> list = usersResource.search("9817330011", true);
@@ -98,7 +106,7 @@ public class KeycloakAdmin_UsingPassword {
   }
 
   public static void printAllRealmRoles() {
-    RealmResource realmResource = KEYCLOAK.realm("springbootdemo");
+    RealmResource realmResource = KEYCLOAK.realm(REALM_NAME);
 
     RolesResource rolesResource = realmResource.roles();
     List<RoleRepresentation> roleRepresentationList = rolesResource.list();
@@ -108,7 +116,7 @@ public class KeycloakAdmin_UsingPassword {
   }
 
   public static void listAllUser() {
-    RealmResource realmResource = KEYCLOAK.realm("springbootdemo");
+    RealmResource realmResource = KEYCLOAK.realm(REALM_NAME);
 
     UsersResource userResource = realmResource.users();
     List<UserRepresentation> userRepresentationList = userResource.list();
@@ -127,7 +135,7 @@ public class KeycloakAdmin_UsingPassword {
     UserRepresentation user = getUserRepresentation();
 
     // Get realm
-    RealmResource realmResource = KEYCLOAK.realm("springbootdemo");
+    RealmResource realmResource = KEYCLOAK.realm(REALM_NAME);
     UsersResource userRessource = realmResource.users();
 
     //Create user (requires manage-users role)
@@ -141,17 +149,10 @@ public class KeycloakAdmin_UsingPassword {
 
     System.out.printf("User created with userId: %s%n", userId);
 
-    // Get realm role "tester" (requires view-realm role)
-    RolesResource rolesResource = realmResource.roles();
-    List<RoleRepresentation> rolesList = rolesResource.list();
-
-    rolesResource.get("user").toRepresentation();
-
     RoleRepresentation userRealmRole =
       realmResource.roles()//
         .get("user").toRepresentation();
 
-    // Assign realm role tester to user
     userRessource.get(userId).roles().realmLevel() //
       .add(Arrays.asList(userRealmRole));
 
